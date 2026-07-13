@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+.forecast_state/
+.streamlit/secrets.toml
+# Generated run artifacts. A demo run is committed under outputs/sample/ so the
+# report + primary forecast CSVs are viewable without running; bulky internal
+# files (full classification table, registry) are excluded to keep the repo lean.
+outputs/*.csv
+outputs/*.html
+outputs/registry.json
+outputs/sample/sku_classification.csv
+outputs/sample/registry.json

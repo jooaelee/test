@@ -1,0 +1,51 @@
+# Warehouse demand-forecast configuration.
+# Every knob has a sensible default in demand_forecast/config.py; override here.
+
+# ---- inputs -----------------------------------------------------------------
+inbound_path: ESSEN_HK_Inbound.csv       # relative to --data-dir
+outbound_path: ESSEN_HK_Outbound.csv
+inventory_path: null                     # optional; derived if null
+encoding: cp949                          # source files are CP949 (Korean)
+as_of: null                              # YYYY-MM-DD; null = latest date in data
+
+# ---- weekly aggregation & horizon -------------------------------------------
+week_anchor: W-SUN
+horizon_weeks: 4
+demand_out_types: [Sales]                # only genuine customer demand
+
+# ---- forecast-target selection --------------------------------------------
+# 교체형: must be active (not end-of-life, see below) AND rank in the top
+#        (1 - target_volume_quantile) by volume among *active* 교체형 series.
+# 지속형: every series with enough history is a target — no volume cut.
+target_volume_quantile: 0.80
+min_history_weeks: 8
+min_active_weeks: 2
+
+# ---- SKU classification (Syntetos-Boylan) -----------------------------------
+adi_cut: 1.32
+cv2_cut: 0.49
+continuous_recent_activity: 0.40         # 지속형 must be active in >=40% of recent weeks
+recent_window_weeks: 52
+
+# ---- SKU lifecycle (active vs end-of-life) ----------------------------------
+# A 교체형 series is presumed end-of-life once it has been quiet for longer
+# than adi * eol_adi_multiplier weeks (clamped to [min, max] grace weeks).
+# 지속형 series are always considered active.
+eol_adi_multiplier: 3.0
+eol_min_grace_weeks: 12
+eol_max_grace_weeks: 52
+
+# ---- large vs small shipment split ------------------------------------------
+split_mode: channel                      # "channel" (특송=소량) | "quantile"
+express_channels: [DHL, FEDEX, UPS]       # 특송 = 소량; 나머지 채널 = 대량
+large_quantile: 0.80                     # used only when split_mode: quantile
+
+# ---- backtest & tuning ------------------------------------------------------
+backtest_folds: 6
+max_trials: 10                           # ~10 candidate configs per series
+champion_margin: 0.02                    # challenger must beat champion by 2%
+
+# ---- outputs ----------------------------------------------------------------
+output_dir: outputs
+registry_path: outputs/registry.json
+report_html: outputs/report.html
